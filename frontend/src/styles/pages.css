@@ -73,10 +73,10 @@
 }
 .title-letter {
   display: inline-block;
-  font-size: clamp(3.1rem, 14vw, 6.6rem);
+  font-size: clamp(2rem, 9.5vw, 5.2rem);
   font-weight: 700;
   color: var(--color-pure-sun);
-  -webkit-text-stroke: 5px var(--ink);
+  -webkit-text-stroke: 4px var(--ink);
   paint-order: stroke fill;
   text-shadow: 0 7px 0 var(--ink);
 }

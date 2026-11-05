@@ -1,5 +1,5 @@
 export const GAME_CONFIG = {
-  name: 'Nimbus Quiz',
+  name: 'ContracepQuiz',
   tagline: 'Responda rápido. Suba no ranking.',
 
   // Tempo limite de cada pergunta, em segundos
@@ -40,6 +40,6 @@ export const GAME_CONFIG = {
   celebrationThreshold: 0.6,
 
   // Chaves do localStorage
-  storageKey: 'nimbus-quiz-participant',
-  soundKey: 'nimbus-quiz-sound',
+  storageKey: 'contracepquiz-participant',
+  soundKey: 'contracepquiz-sound',
 }

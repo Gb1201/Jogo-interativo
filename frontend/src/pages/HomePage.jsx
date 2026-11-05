@@ -9,7 +9,7 @@ import { normalizeName } from '../utils/format'
 import { sparkle } from '../utils/confetti'
 import GameButton from '../components/GameButton'
 
-const TITLE = 'NIMBUS'
+const TITLE = 'CONTRACEP'
 
 function friendlyError(error) {
   if (error?.code === 'DUPLICATE_NAME') {
