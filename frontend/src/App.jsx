@@ -1,122 +1,119 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { AnimatePresence, motion } from 'motion/react'
+import { isSupabaseConfigured } from './config/supabase'
+import { clearSavedPlayer } from './utils/storage'
+import AnimatedBackground from './components/AnimatedBackground'
+import CustomCursor from './components/CustomCursor'
+import ErrorMessage from './components/ErrorMessage'
+import HUD from './components/HUD'
+import HomePage from './pages/HomePage'
+import QuizPage from './pages/QuizPage'
+import RankingPage from './pages/RankingPage'
+import ResultPage from './pages/ResultPage'
 
-function App() {
-  const [count, setCount] = useState(0)
+const pageTransition = {
+  initial: { opacity: 0, y: 40, scale: 0.97 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: -30, scale: 0.97 },
+  transition: { type: 'spring', stiffness: 220, damping: 26 },
+}
+
+// Controla qual tela aparece: home -> quiz -> result, com o ranking acessível de fora da partida.
+export default function App() {
+  const [screen, setScreen] = useState('home')
+  const [previousScreen, setPreviousScreen] = useState('home')
+  const [participant, setParticipant] = useState(null)
+  const [result, setResult] = useState(null)
+
+  const openRanking = () => {
+    setPreviousScreen(screen)
+    setScreen('ranking')
+  }
+  const closeRanking = () => setScreen(previousScreen)
+
+  const startQuiz = (p) => {
+    setParticipant(p)
+    setResult(null)
+    setScreen('quiz')
+  }
+
+  const showResult = (r) => {
+    setResult(r)
+    setScreen('result')
+  }
+
+  // Jogador que já tinha terminado (retomou pela página inicial)
+  const showFinishedParticipant = (p) => {
+    setParticipant(p)
+    showResult({
+      participantId: p.id,
+      name: p.name,
+      score: p.score,
+      correct: p.correct_count,
+      wrong: p.wrong_count,
+      totalMs: p.total_time_ms,
+      total: p.correct_count + p.wrong_count,
+    })
+  }
+
+  const newPlayer = () => {
+    clearSavedPlayer()
+    setParticipant(null)
+    setResult(null)
+    setScreen('home')
+  }
+
+  if (!isSupabaseConfigured) {
+    return (
+      <>
+        <AnimatedBackground />
+        <main className="app-shell">
+          <div className="screen screen--center">
+            <ErrorMessage
+              title="Falta configurar o Supabase"
+              message="Crie o arquivo .env.development com VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY (veja o .env.development.example) e reinicie o npm run dev."
+            />
+          </div>
+        </main>
+      </>
+    )
+  }
+
+  const showRankingButton = screen === 'home' || screen === 'result'
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+      <AnimatedBackground />
+      <CustomCursor />
+      <div className="app-shell">
+        <HUD
+          playerName={screen !== 'home' ? participant?.name : null}
+          showRanking={showRankingButton}
+          onRanking={openRanking}
+        />
+        <main className="screen">
+          <AnimatePresence mode="wait">
+            <motion.div key={screen} className="screen-inner" {...pageTransition}>
+              {screen === 'home' && (
+                <HomePage
+                  onStart={startQuiz}
+                  onFinished={showFinishedParticipant}
+                  onRanking={openRanking}
+                />
+              )}
+              {screen === 'quiz' && participant && (
+                <QuizPage participant={participant} onFinish={showResult} />
+              )}
+              {screen === 'result' && result && (
+                <ResultPage result={result} onRanking={openRanking} onNewPlayer={newPlayer} />
+              )}
+              {screen === 'ranking' && (
+                <RankingPage currentId={participant?.id} onBack={closeRanking} />
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      </div>
     </>
   )
 }
-
-export default App

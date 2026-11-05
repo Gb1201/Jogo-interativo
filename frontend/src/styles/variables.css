@@ -1,0 +1,31 @@
+:root {
+  /* Paleta oficial */
+  --color-airplane-view: #80b0e8;
+  --color-peony-bundle: #ffc0c0;
+  --color-tropical-rain: #008471;
+  --color-autumn-lavender: #d1caea;
+  --color-limeade: #d6d35f;
+  --color-tomato-jam: #c45f3f;
+  --color-pure-sun: #f4d242;
+  --color-monet-ponds: #898e46;
+  --color-bubble-gum: #f29cc3;
+
+  /* Neutros de apoio, só para legibilidade (texto e contornos).
+     "ink" é um Monet Ponds bem escurecido; "paper" é um branco quente. */
+  --ink: #2a2d10;
+  --ink-soft: color-mix(in srgb, var(--color-monet-ponds) 60%, var(--ink));
+  --paper: #fffaf3;
+
+  /* Tipografia */
+  --font-display: 'Fredoka', system-ui, sans-serif;
+  --font-body: 'Nunito', system-ui, sans-serif;
+
+  /* Formas */
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+
+  /* Sombras de jogo: sólidas e deslocadas, dão profundidade */
+  --shadow-soft: 0 10px 24px color-mix(in srgb, var(--ink) 28%, transparent);
+  --shadow-pop: 0 6px 0 var(--ink);
+}
