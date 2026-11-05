@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Flag, Flame, Star } from 'lucide-react'
+import { Check, Flag, Flame, Star, Target } from 'lucide-react'
 import { useQuiz } from '../hooks/useQuiz'
 import AnimatedCounter from '../components/AnimatedCounter'
 import ErrorMessage from '../components/ErrorMessage'
@@ -97,6 +97,17 @@ export default function QuizPage({ participant, onFinish }) {
           </AnimatePresence>
         </div>
         <ProgressBar value={progress} label="Progresso do quiz" />
+        <ul className="mission-bar" aria-label="Missões">
+          {quiz.missions.map((m) => (
+            <li key={m.id} className={`mission-chip ${m.done ? 'mission-chip--done' : ''}`}>
+              {m.done ? <Check size={16} strokeWidth={4} /> : <Target size={16} strokeWidth={3} />}
+              <span className="mission-chip-title">{m.title}</span>
+              <span className="mission-chip-count">
+                {m.progress}/{m.target}
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <AnimatePresence mode="wait">
@@ -107,6 +118,9 @@ export default function QuizPage({ participant, onFinish }) {
           total={quiz.total}
           feedback={quiz.feedback}
           isLast={quiz.isLast}
+          isGold={quiz.isGold}
+          hintsLeft={quiz.hintsLeft}
+          onHint={quiz.takeHint}
           finishing={quiz.finishing}
           onAnswer={quiz.answer}
           onContinue={quiz.isLast ? handleFinish : next}

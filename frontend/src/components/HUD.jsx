@@ -1,12 +1,12 @@
 import { motion } from 'motion/react'
-import { Cloud, Gamepad2, Trophy } from 'lucide-react'
+import { Cloud, Gamepad2, HelpCircle, Trophy } from 'lucide-react'
 import { GAME_CONFIG } from '../config/gameConfig'
 import { useSound } from '../hooks/useSound'
 import SoundToggle from './SoundToggle'
 
 // Barra superior fixa em todas as telas: marca, jogador, som e acesso ao ranking.
 // O botão de ranking some durante a partida para ninguém perder o tempo da pergunta.
-export default function HUD({ playerName, showRanking, onRanking }) {
+export default function HUD({ playerName, showRanking, onRanking, showHelp, onHelp }) {
   const { play } = useSound()
   return (
     <header className="hud">
@@ -25,6 +25,22 @@ export default function HUD({ playerName, showRanking, onRanking }) {
           </span>
         )}
         <SoundToggle />
+        {showHelp && (
+          <motion.button
+            type="button"
+            className="icon-btn icon-btn--sky"
+            onClick={() => {
+              play('click')
+              onHelp()
+            }}
+            aria-label="Como jogar"
+            title="Como jogar"
+            whileHover={{ scale: 1.1, rotate: -6 }}
+            whileTap={{ scale: 0.9, y: 3 }}
+          >
+            <HelpCircle size={22} strokeWidth={2.8} />
+          </motion.button>
+        )}
         {showRanking && (
           <motion.button
             type="button"

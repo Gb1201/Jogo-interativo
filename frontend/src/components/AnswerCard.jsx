@@ -4,7 +4,7 @@ import { Check, X } from 'lucide-react'
 const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F']
 
 // Alternativa em forma de card de jogo.
-// state: idle | correct | wrong | dim
+// state: idle | correct | wrong | dim | removed (eliminada pela dica 50/50)
 const variants = {
   hidden: { opacity: 0, y: 40, scale: 0.9 },
   show: (i) => ({
@@ -33,6 +33,21 @@ const variants = {
 }
 
 export default function AnswerCard({ index, text, state = 'idle', disabled, onClick }) {
+  if (state === 'removed') {
+    return (
+      <motion.div
+        className="answer answer--removed"
+        aria-hidden="true"
+        initial={{ opacity: 1, scale: 1 }}
+        animate={{ opacity: 0.35, scale: 0.96 }}
+        transition={{ duration: 0.3 }}
+      >
+        <span className="answer-letter">{LETTERS[index] ?? index + 1}</span>
+        <span className="answer-text">{text}</span>
+      </motion.div>
+    )
+  }
+
   const animateState = state === 'wrong' ? 'wrong' : state === 'correct' ? 'correct' : 'show'
 
   return (

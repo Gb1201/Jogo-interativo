@@ -1,0 +1,294 @@
+/* =====================================================================
+   REGRAS ("COMO JOGAR") E DESAFIOS (Rodada Ouro, dica, missões)
+   ===================================================================== */
+
+.icon-btn--sky {
+  background: var(--color-airplane-view);
+}
+
+.home-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+}
+
+/* ---------- Tela de regras ---------- */
+.rules {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 24px;
+}
+.rules-card {
+  width: min(100%, 640px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px 18px 26px;
+  background: var(--color-autumn-lavender);
+  border: 4px solid var(--ink);
+  border-radius: var(--radius-lg);
+  box-shadow:
+    0 8px 0 var(--ink),
+    var(--shadow-soft);
+}
+.rules-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 2.2rem;
+  line-height: 1.1;
+  text-align: center;
+}
+.rules-subtitle {
+  text-align: center;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+.rules-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 6px;
+}
+
+.howto {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.howto-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.howto-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 0 var(--ink);
+}
+.howto-icon {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  border: 3px solid var(--ink);
+  color: var(--ink);
+}
+.howto-icon--lime {
+  background: var(--color-limeade);
+}
+.howto-icon--gum {
+  background: var(--color-bubble-gum);
+}
+.howto-icon--sun {
+  background: var(--color-pure-sun);
+}
+.howto-step-title {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  line-height: 1.2;
+}
+.howto-step-text {
+  margin-top: 2px;
+  font-size: 1.02rem;
+  line-height: 1.4;
+}
+
+.howto-missions {
+  padding: 14px 16px;
+  background: var(--color-pure-sun);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 0 var(--ink);
+}
+.howto-missions-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+}
+.howto-missions-intro {
+  margin: 4px 0 8px;
+  line-height: 1.4;
+}
+.howto-missions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 20px;
+  line-height: 1.35;
+}
+.howto-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+.howto-tip svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+/* ---------- Rodada Ouro ---------- */
+.question-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.badge--gold {
+  background: var(--color-pure-sun);
+}
+.question-card--gold {
+  border-color: var(--ink);
+  background: color-mix(in srgb, var(--color-pure-sun) 55%, var(--color-peony-bundle));
+}
+
+/* ---------- Dica 50/50 ---------- */
+.hint-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+.hint-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--color-limeade);
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  box-shadow: 0 4px 0 var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+}
+.hint-btn:disabled {
+  background: var(--color-autumn-lavender);
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+.hint-note {
+  font-size: 0.92rem;
+  line-height: 1.3;
+}
+.answer--removed {
+  pointer-events: none;
+  text-decoration: line-through;
+  filter: grayscale(0.6);
+}
+
+/* ---------- Detalhe da pontuação ---------- */
+.feedback-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  text-align: left;
+}
+.feedback-detail {
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.92;
+}
+
+/* ---------- Missões durante o jogo ---------- */
+.mission-bar {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.mission-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 3px solid var(--ink);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.88rem;
+  transition: background 0.3s;
+}
+.mission-chip--done {
+  background: var(--color-tropical-rain);
+  color: var(--paper);
+}
+.mission-chip-count {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+}
+
+/* ---------- Missões no resultado ---------- */
+.result-missions {
+  width: min(100%, 520px);
+  padding: 14px 16px;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-md);
+  box-shadow: 0 5px 0 var(--ink);
+  text-align: left;
+}
+.result-missions-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+.result-missions ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.result-missions li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.35;
+  color: var(--color-tomato-jam);
+}
+.result-missions li svg {
+  flex: none;
+  margin-top: 2px;
+}
+.result-missions li.is-done {
+  color: var(--color-tropical-rain);
+}
+.result-missions li span {
+  color: var(--ink);
+}
+.result-missions-win {
+  margin-top: 10px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-align: center;
+}
+
+@media (max-width: 520px) {
+  .rules-title {
+    font-size: 1.8rem;
+  }
+  .howto-step-text {
+    font-size: 0.98rem;
+  }
+  .mission-chip-title {
+    display: none;
+  }
+}

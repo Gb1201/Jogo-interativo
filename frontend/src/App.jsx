@@ -10,6 +10,7 @@ import HomePage from './pages/HomePage'
 import QuizPage from './pages/QuizPage'
 import RankingPage from './pages/RankingPage'
 import ResultPage from './pages/ResultPage'
+import RulesPage from './pages/RulesPage'
 
 const pageTransition = {
   initial: { opacity: 0, y: 40, scale: 0.97 },
@@ -31,10 +32,17 @@ export default function App() {
   }
   const closeRanking = () => setScreen(previousScreen)
 
-  const startQuiz = (p) => {
+  const openRules = () => {
+    setPreviousScreen(screen)
+    setScreen('rules')
+  }
+  const closeRules = () => setScreen(previousScreen)
+
+  // Jogador novo vê as regras antes da primeira pergunta; quem retoma vai direto ao jogo.
+  const startQuiz = (p, { showRules = false } = {}) => {
     setParticipant(p)
     setResult(null)
-    setScreen('quiz')
+    setScreen(showRules ? 'rules-pregame' : 'quiz')
   }
 
   const showResult = (r) => {
@@ -80,6 +88,7 @@ export default function App() {
   }
 
   const showRankingButton = screen === 'home' || screen === 'result'
+  const showHelpButton = screen === 'home' || screen === 'result'
 
   return (
     <>
@@ -90,6 +99,8 @@ export default function App() {
           playerName={screen !== 'home' ? participant?.name : null}
           showRanking={showRankingButton}
           onRanking={openRanking}
+          showHelp={showHelpButton}
+          onHelp={openRules}
         />
         <main className="screen">
           <AnimatePresence mode="wait">
@@ -99,7 +110,12 @@ export default function App() {
                   onStart={startQuiz}
                   onFinished={showFinishedParticipant}
                   onRanking={openRanking}
+                  onRules={openRules}
                 />
+              )}
+              {screen === 'rules' && <RulesPage mode="info" onBack={closeRules} />}
+              {screen === 'rules-pregame' && participant && (
+                <RulesPage mode="pregame" onStart={() => setScreen('quiz')} />
               )}
               {screen === 'quiz' && participant && (
                 <QuizPage participant={participant} onFinish={showResult} />

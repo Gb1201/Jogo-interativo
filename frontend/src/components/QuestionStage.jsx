@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowRight, Check, Clock, Flag, Lightbulb, X } from 'lucide-react'
+import { ArrowRight, Check, Clock, Crown, Flag, Lightbulb, X } from 'lucide-react'
 import { GAME_CONFIG } from '../config/gameConfig'
 import '../styles/explanation.css'
 import { useSound } from '../hooks/useSound'
@@ -12,6 +12,17 @@ import TimerRing from './TimerRing'
 
 const DURATION_MS = GAME_CONFIG.secondsPerQuestion * 1000
 
+// Mostra de onde vieram os pontos, para o jogador entender a conta.
+function breakdownText(b) {
+  const parts = [`${b.base} base`]
+  if (b.speed > 0) parts.push(`${b.speed} velocidade`)
+  if (b.combo > 0) parts.push(`${b.combo} combo`)
+  let text = parts.join(' + ')
+  if (b.hinted) text += ' (÷2 pela dica)'
+  if (b.isGold) text += ` (x${GAME_CONFIG.goldMultiplier} Ouro)`
+  return text
+}
+
 // Uma pergunta na tela. O QuizPage usa key={question.id}, então cada pergunta
 // monta um componente novo: o timer e os "travas" reiniciam sozinhos.
 export default function QuestionStage({
@@ -20,8 +31,11 @@ export default function QuestionStage({
   total,
   feedback,
   isLast,
+  isGold,
+  hintsLeft,
   finishing,
   onAnswer,
+  onHint,
   onContinue,
 }) {
   const { play } = useSound()
@@ -29,6 +43,8 @@ export default function QuestionStage({
   const lockedRef = useRef(false)
   const continuedRef = useRef(false)
   const panelRef = useRef(null)
+  const [removedIds, setRemovedIds] = useState([])
+  const hinted = removedIds.length > 0
 
   const correctOption = question.options.find((o) => o.is_correct)
   const explanation = question.explanation?.trim() || null
@@ -64,7 +80,16 @@ export default function QuestionStage({
     } else {
       play('wrong')
     }
-    onAnswer(option, elapsed)
+    onAnswer(option, elapsed, hinted)
+  }
+
+  const handleHint = () => {
+    if (lockedRef.current || answered || hinted || hintsLeft <= 0) return
+    const ids = onHint()
+    if (ids) {
+      play('select')
+      setRemovedIds(ids)
+    }
   }
 
   const handleContinue = useCallback(() => {
@@ -96,7 +121,7 @@ export default function QuestionStage({
   }, [feedback])
 
   const stateOf = (option) => {
-    if (!feedback) return 'idle'
+    if (!feedback) return removedIds.includes(option.id) ? 'removed' : 'idle'
     if (option.id === feedback.correctId) return 'correct'
     if (option.id === feedback.selectedId) return 'wrong'
     return 'dim'
@@ -110,10 +135,17 @@ export default function QuestionStage({
       exit={{ opacity: 0, x: -80, rotate: -2 }}
       transition={{ type: 'spring', stiffness: 240, damping: 24 }}
     >
-      <div className="question-card">
+      <div className={`question-card ${isGold ? 'question-card--gold' : ''}`}>
         <div className="question-meta">
-          <span className="badge badge--gum">
-            Pergunta {number} de {total}
+          <span className="question-badges">
+            <span className="badge badge--gum">
+              Pergunta {number} de {total}
+            </span>
+            {isGold && (
+              <span className="badge badge--gold" title="Vale pontos em dobro">
+                <Crown size={16} strokeWidth={3} /> Rodada Ouro x{GAME_CONFIG.goldMultiplier}
+              </span>
+            )}
           </span>
           <TimerRing remainingMs={remainingMs} durationMs={DURATION_MS} />
         </div>
@@ -132,6 +164,25 @@ export default function QuestionStage({
           />
         ))}
       </div>
+
+      {!answered && (
+        <div className="hint-row">
+          <button
+            type="button"
+            className="hint-btn"
+            onClick={handleHint}
+            disabled={hinted || hintsLeft <= 0}
+          >
+            <Lightbulb size={20} strokeWidth={3} />
+            {hinted
+              ? 'Dica usada: vale metade dos pontos'
+              : `Dica 50/50 (${hintsLeft} ${hintsLeft === 1 ? 'restante' : 'restantes'})`}
+          </button>
+          {!hinted && hintsLeft > 0 && (
+            <span className="hint-note">Elimina 2 erradas, mas o acerto vale metade.</span>
+          )}
+        </div>
+      )}
 
       <AnimatePresence>
         {feedback && correctOption && (
@@ -181,12 +232,19 @@ export default function QuestionStage({
               ) : (
                 <X size={30} strokeWidth={4} />
               )}
-              <span>
-                {feedback.isCorrect
-                  ? `Mandou bem! +${feedback.points}`
-                  : feedback.timedOut
-                    ? 'O tempo acabou!'
-                    : 'Ops, não foi dessa vez!'}
+              <span className="feedback-text">
+                <span>
+                  {feedback.isCorrect
+                    ? `Mandou bem! +${feedback.points}`
+                    : feedback.timedOut
+                      ? 'O tempo acabou!'
+                      : 'Ops, não foi dessa vez!'}
+                </span>
+                {feedback.isCorrect && feedback.breakdown && (
+                  <small className="feedback-detail">
+                    {breakdownText(feedback.breakdown)}
+                  </small>
+                )}
               </span>
             </motion.div>
           )}

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'motion/react'
-import { Check, Clock, Crown, Trophy, UserPlus, X } from 'lucide-react'
+import { Check, Clock, Crown, Target, Trophy, UserPlus, X } from 'lucide-react'
 import { GAME_CONFIG } from '../config/gameConfig'
+import { maxScorePossible } from '../utils/scoring'
 import { useSound } from '../hooks/useSound'
 import { fetchRanking } from '../services/rankingService'
 import { formatDuration } from '../utils/format'
@@ -30,7 +31,7 @@ export default function ResultPage({ result, onRanking, onNewPlayer }) {
   const { play } = useSound()
   const [rank, setRank] = useState({ status: 'loading', position: null, of: null })
 
-  const maxScore = result.total * (GAME_CONFIG.pointsPerCorrect + GAME_CONFIG.maxSpeedBonus)
+  const maxScore = maxScorePossible(result.total)
   const isHigh = maxScore > 0 && result.score / maxScore >= GAME_CONFIG.celebrationThreshold
 
   // Animação de comemoração ao entrar (uma vez)
@@ -108,6 +109,28 @@ export default function ResultPage({ result, onRanking, onNewPlayer }) {
           <span>tempo total</span>
         </div>
       </motion.div>
+
+      {result.missions && (
+        <motion.div variants={item} className="result-missions">
+          <h2 className="result-missions-title">
+            <Target size={22} strokeWidth={3} /> Missões (
+            {result.missions.filter((m) => m.done).length}/{result.missions.length})
+          </h2>
+          <ul>
+            {result.missions.map((m) => (
+              <li key={m.id} className={m.done ? 'is-done' : ''}>
+                {m.done ? <Check size={18} strokeWidth={4} /> : <X size={18} strokeWidth={4} />}
+                <span>
+                  <strong>{m.title}</strong> · {m.description}
+                </span>
+              </li>
+            ))}
+          </ul>
+          {result.missions.every((m) => m.done) && (
+            <p className="result-missions-win">Você cumpriu todas as missões. Campeão!</p>
+          )}
+        </motion.div>
+      )}
 
       <motion.div variants={item} className={`rank-card ${podium ? 'rank-card--podium' : ''}`}>
         <Crown size={30} strokeWidth={2.8} />

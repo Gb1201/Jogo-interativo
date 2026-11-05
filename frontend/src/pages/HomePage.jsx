@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { Gamepad2, Play, RotateCcw, Sparkles, Timer, Trophy, User, Zap } from 'lucide-react'
+import { BookOpen, Flame, Gamepad2, Play, RotateCcw, Sparkles, Timer, Trophy, User, Zap } from 'lucide-react'
 import { GAME_CONFIG } from '../config/gameConfig'
 import { useSound } from '../hooks/useSound'
 import { createParticipant, getParticipant } from '../services/participantService'
@@ -18,7 +18,7 @@ function friendlyError(error) {
   return 'Não consegui falar com o servidor agora. Confira sua internet e tente de novo!'
 }
 
-export default function HomePage({ onStart, onFinished, onRanking }) {
+export default function HomePage({ onStart, onFinished, onRanking, onRules }) {
   const { play } = useSound()
   const [name, setName] = useState('')
   const [error, setError] = useState('')
@@ -45,7 +45,7 @@ export default function HomePage({ onStart, onFinished, onRanking }) {
       const participant = await createParticipant(clean)
       savePlayer(participant)
       play('achievement')
-      onStart(participant)
+      onStart(participant, { showRules: true })
     } catch (err) {
       setError(friendlyError(err))
       setLoading(false)
@@ -224,11 +224,22 @@ export default function HomePage({ onStart, onFinished, onRanking }) {
           <Zap size={18} strokeWidth={2.8} /> Bônus de velocidade
         </li>
         <li className="chip chip--lime">
+          <Flame size={18} strokeWidth={2.8} /> Combos e Rodada Ouro
+        </li>
+        <li className="chip chip--lime">
           <Trophy size={18} strokeWidth={2.8} /> Ranking geral
         </li>
       </motion.ul>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.35 }}>
+      <motion.div
+        className="home-links"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.35 }}
+      >
+        <GameButton variant="success" icon={BookOpen} onClick={onRules}>
+          Como jogar
+        </GameButton>
         <GameButton variant="gold" icon={Trophy} onClick={onRanking}>
           Ver ranking
         </GameButton>

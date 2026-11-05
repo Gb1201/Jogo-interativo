@@ -5,15 +5,15 @@ import { fetchAnswers, saveAnswer } from '../services/answerService'
 import { finishParticipant } from '../services/participantService'
 import { GameError } from '../services/errors'
 import { shuffle } from '../utils/shuffle'
+import {
+  EMPTY_MISSION_STATS,
+  computePoints,
+  evaluateMissions,
+  getGoldRounds,
+} from '../utils/scoring'
 
 const LIMIT_MS = GAME_CONFIG.secondsPerQuestion * 1000
 const EMPTY_STATS = { score: 0, correct: 0, wrong: 0, totalMs: 0, streak: 0 }
-
-// 100 pontos + bônus proporcional ao tempo que sobrou
-export function computePoints(timeMs) {
-  const timeLeft = Math.max(0, 1 - timeMs / LIMIT_MS)
-  return GAME_CONFIG.pointsPerCorrect + Math.round(GAME_CONFIG.maxSpeedBonus * timeLeft)
-}
 
 // Toda a lógica do jogo: carregar, embaralhar, responder, pontuar e finalizar.
 // Também sabe retomar: perguntas já respondidas (gravadas no banco) são puladas.
@@ -27,12 +27,20 @@ export function useQuiz(participant) {
   const [feedback, setFeedback] = useState(null)
   const [finishing, setFinishing] = useState(false)
   const [finishError, setFinishError] = useState(null)
+  const [hintsLeft, setHintsLeft] = useState(GAME_CONFIG.hintsPerGame)
+  const [missionStats, setMissionStats] = useState(EMPTY_MISSION_STATS)
 
+  const missionRef = useRef(EMPTY_MISSION_STATS)
   const statsRef = useRef(EMPTY_STATS)
   const lockRef = useRef(false) // impede responder duas vezes a mesma pergunta
   const finishingRef = useRef(false)
   const pendingRef = useRef([]) // gravações em andamento
   const failedRef = useRef([]) // gravações que falharam (são refeitas ao finalizar)
+
+  const commitMissions = useCallback((patch) => {
+    missionRef.current = { ...missionRef.current, ...patch }
+    setMissionStats(missionRef.current)
+  }, [])
 
   const commitStats = useCallback((patch) => {
     statsRef.current = { ...statsRef.current, ...patch }
@@ -66,6 +74,14 @@ export function useQuiz(participant) {
         EMPTY_STATS,
       )
       commitStats(restored)
+      // Ao retomar, só dá para recuperar as respostas rápidas (a ordem e as rodadas não ficam salvas)
+      commitMissions({
+        maxStreak: 0,
+        goldCorrect: 0,
+        fastCorrect: previous.filter(
+          (a) => a.is_correct && a.time_ms < GAME_CONFIG.missionFastSeconds * 1000,
+        ).length,
+      })
 
       const remaining = questions
         .filter((q) => !doneIds.has(q.id))
@@ -79,7 +95,7 @@ export function useQuiz(participant) {
       setError(err)
       setStatus('error')
     }
-  }, [participant.id, commitStats])
+  }, [participant.id, commitStats, commitMissions])
 
   useEffect(() => {
     load()
@@ -87,9 +103,22 @@ export function useQuiz(participant) {
 
   const current = queue[0] ?? null
 
+  const isGold = getGoldRounds(total).includes(answered + 1)
+
+  // Usa uma dica 50/50. Devolve os ids das 2 alternativas erradas eliminadas (ou null).
+  const takeHint = useCallback(() => {
+    if (!current || lockRef.current || hintsLeft <= 0) return null
+    const wrong = shuffle(current.options.filter((o) => !o.is_correct))
+    const toRemove = wrong.slice(0, Math.max(0, Math.min(2, wrong.length - 1)))
+    if (toRemove.length === 0) return null
+    setHintsLeft((n) => n - 1)
+    return toRemove.map((o) => o.id)
+  }, [current, hintsLeft])
+
   // option = alternativa escolhida, ou null se o tempo acabou
+  // hinted = true se o jogador usou a dica 50/50 nesta pergunta
   const answer = useCallback(
-    (option, elapsedMs) => {
+    (option, elapsedMs, hinted = false) => {
       if (!current || lockRef.current) return
       lockRef.current = true
 
@@ -98,7 +127,11 @@ export function useQuiz(participant) {
       const timeMs = timedOut
         ? LIMIT_MS
         : Math.round(Math.min(Math.max(elapsedMs, 0), LIMIT_MS))
-      const points = isCorrect ? computePoints(timeMs) : 0
+      const s0 = statsRef.current
+      const breakdown = isCorrect
+        ? computePoints(timeMs, { previousStreak: s0.streak, isGold, hinted })
+        : null
+      const points = breakdown?.total ?? 0
       const correctOption = current.options.find((o) => o.is_correct)
 
       const s = statsRef.current
@@ -110,12 +143,23 @@ export function useQuiz(participant) {
         streak: isCorrect ? s.streak + 1 : 0,
       })
 
+      const newStreak = isCorrect ? s.streak + 1 : 0
+      const m = missionRef.current
+      commitMissions({
+        maxStreak: Math.max(m.maxStreak, newStreak),
+        fastCorrect:
+          m.fastCorrect + (isCorrect && timeMs < GAME_CONFIG.missionFastSeconds * 1000 ? 1 : 0),
+        goldCorrect: m.goldCorrect + (isCorrect && isGold ? 1 : 0),
+      })
+
       setFeedback({
         selectedId: option?.id ?? null,
         correctId: correctOption?.id ?? null,
         isCorrect,
         timedOut,
         points,
+        breakdown,
+        isGold,
         explanation: current.explanation ?? null,
       })
 
@@ -133,7 +177,7 @@ export function useQuiz(participant) {
         }),
       )
     },
-    [current, participant.id, commitStats],
+    [current, participant.id, commitStats, commitMissions, isGold],
   )
 
   const next = useCallback(() => {
@@ -183,6 +227,7 @@ export function useQuiz(participant) {
         wrong: s.wrong,
         totalMs: s.totalMs,
         total,
+        missions: evaluateMissions(missionRef.current, total),
       }
     } catch (err) {
       setFinishError(err)
@@ -201,6 +246,10 @@ export function useQuiz(participant) {
     number: answered + 1,
     total,
     isLast: queue.length <= 1,
+    isGold,
+    hintsLeft,
+    takeHint,
+    missions: evaluateMissions(missionStats, total),
     stats,
     feedback,
     answer,
