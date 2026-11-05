@@ -1,13 +1,26 @@
 import { supabase } from '../config/supabase'
 import { GameError } from './errors'
 
-// Busca perguntas ativas com suas alternativas, já em um formato simples.
+const BASE_COLUMNS = 'id, text, position, options(id, text, is_correct)'
+
+// Busca perguntas ativas com suas alternativas e a explicação da resposta.
+// Se o banco ainda não tiver a coluna "explanation" (SQL não atualizado), o jogo
+// continua funcionando, só sem a explicação.
 export async function fetchQuestions() {
-  const { data, error } = await supabase
-    .from('questions')
-    .select('id, text, position, options(id, text, is_correct)')
-    .eq('active', true)
-    .order('position', { ascending: true })
+  const query = (columns) =>
+    supabase
+      .from('questions')
+      .select(columns)
+      .eq('active', true)
+      .order('position', { ascending: true })
+
+  let { data, error } = await query(
+    'id, text, explanation, position, options(id, text, is_correct)',
+  )
+
+  if (error && (error.code === '42703' || /explanation/i.test(error.message ?? ''))) {
+    ;({ data, error } = await query(BASE_COLUMNS))
+  }
 
   if (error) throw new GameError('NETWORK', error.message)
 

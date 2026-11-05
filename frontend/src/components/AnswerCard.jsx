@@ -14,11 +14,19 @@ const variants = {
     x: 0,
     transition: { type: 'spring', stiffness: 260, damping: 20, delay: 0.12 + i * 0.08 },
   }),
+  // Importante: repetir opacity/y aqui. Ao trocar de variante, o Motion devolve ao
+  // valor inicial (invisível) tudo que a nova variante não define.
   wrong: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
     x: [0, -12, 12, -9, 9, -4, 0],
     transition: { duration: 0.5 },
   },
   correct: {
+    opacity: 1,
+    y: 0,
+    x: 0,
     scale: [1, 1.06, 1],
     transition: { duration: 0.45 },
   },

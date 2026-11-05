@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowRight, Check, Clock, Flag, X } from 'lucide-react'
+import { ArrowRight, Check, Clock, Flag, Lightbulb, X } from 'lucide-react'
 import { GAME_CONFIG } from '../config/gameConfig'
+import '../styles/explanation.css'
 import { useSound } from '../hooks/useSound'
 import { useTimer } from '../hooks/useTimer'
 import { burst } from '../utils/confetti'
@@ -27,6 +28,10 @@ export default function QuestionStage({
   const answered = Boolean(feedback)
   const lockedRef = useRef(false)
   const continuedRef = useRef(false)
+  const panelRef = useRef(null)
+
+  const correctOption = question.options.find((o) => o.is_correct)
+  const explanation = question.explanation?.trim() || null
 
   const handleExpire = useCallback(() => {
     if (lockedRef.current) return
@@ -68,14 +73,25 @@ export default function QuestionStage({
     onContinue()
   }, [onContinue])
 
-  // Avança sozinho depois de mostrar o feedback (o botão "Continuar" adianta)
+  // Sem explicação: avança sozinho depois do feedback (o botão "Continuar" adianta).
+  // Com explicação: espera o jogador terminar de ler e clicar em "Continuar".
   const continueRef = useRef(handleContinue)
   useEffect(() => {
     continueRef.current = handleContinue
   }, [handleContinue])
   useEffect(() => {
-    if (!feedback) return undefined
+    if (!feedback || explanation) return undefined
     const id = setTimeout(() => continueRef.current(), GAME_CONFIG.feedbackDelayMs)
+    return () => clearTimeout(id)
+  }, [feedback, explanation])
+
+  // Garante que o painel da resposta apareça na tela (importante no celular)
+  useEffect(() => {
+    if (!feedback) return undefined
+    const id = setTimeout(
+      () => panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }),
+      350,
+    )
     return () => clearTimeout(id)
   }, [feedback])
 
@@ -116,6 +132,35 @@ export default function QuestionStage({
           />
         ))}
       </div>
+
+      <AnimatePresence>
+        {feedback && correctOption && (
+          <motion.div
+            key="explain"
+            ref={panelRef}
+            className="explain"
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 20, delay: 0.1 }}
+          >
+            <div className="explain-head">
+              <Check size={30} strokeWidth={4} />
+              <div className="explain-head-text">
+                <span className="explain-label">Resposta correta</span>
+                <strong className="explain-answer">{correctOption.text}</strong>
+              </div>
+            </div>
+            {explanation && (
+              <div className="explain-body">
+                <span className="explain-icon">
+                  <Lightbulb size={20} strokeWidth={3} />
+                </span>
+                <p className="explain-text">{explanation}</p>
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="stage-footer">
         <AnimatePresence mode="wait">

@@ -1,0 +1,76 @@
+/* =====================================================================
+   PAINEL "RESPOSTA CORRETA + EXPLICAÇÃO" (aparece depois de responder)
+   ===================================================================== */
+.explain {
+  overflow: hidden;
+  background: var(--paper);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 6px 0 var(--ink),
+    var(--shadow-soft);
+}
+
+.explain-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: var(--color-tropical-rain);
+  color: var(--paper);
+  font-family: var(--font-display);
+}
+.explain-head svg {
+  flex: none;
+}
+.explain-head-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.15;
+}
+.explain-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+.explain-answer {
+  font-size: 1.3rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.explain-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px 16px;
+  border-top: 3px solid var(--ink);
+}
+.explain-icon {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-pure-sun);
+  border: 3px solid var(--ink);
+  color: var(--ink);
+}
+.explain-text {
+  font-size: 1.08rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 520px) {
+  .explain-answer {
+    font-size: 1.15rem;
+  }
+  .explain-text {
+    font-size: 1rem;
+  }
+}

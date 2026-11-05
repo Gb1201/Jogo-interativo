@@ -9,6 +9,7 @@
 create table if not exists public.questions (
   id        bigint generated always as identity primary key,
   text      text    not null check (char_length(text) between 3 and 500),
+  explanation text check (char_length(explanation) <= 600), -- explicação mostrada após responder
   position  integer not null default 0,
   active    boolean not null default true,
   created_at timestamptz not null default now()
@@ -20,6 +21,9 @@ create table if not exists public.options (
   text        text    not null check (char_length(text) between 1 and 300),
   is_correct  boolean not null default false
 );
+
+-- Para bancos criados antes da explicação existir (seguro rodar de novo)
+alter table public.questions add column if not exists explanation text;
 
 -- Garante exatamente UMA alternativa correta por pergunta (no máximo uma aqui)
 create unique index if not exists options_one_correct_per_question

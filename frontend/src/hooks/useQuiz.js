@@ -116,6 +116,7 @@ export function useQuiz(participant) {
         isCorrect,
         timedOut,
         points,
+        explanation: current.explanation ?? null,
       })
 
       const payload = {

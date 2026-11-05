@@ -1,0 +1,69 @@
+/* =====================================================================
+   DECORAÇÃO TEMÁTICA: métodos contraceptivos (stickers flutuantes)
+   Usado só pelo AnimatedBackground. Fica atrás de todo o conteúdo.
+   ===================================================================== */
+.bg-decor {
+  --k: 1; /* fator de escala (menor no celular) */
+  position: absolute;
+  width: calc(var(--size) * var(--k));
+  height: calc(var(--size) * var(--k));
+  opacity: 0.92;
+  pointer-events: none;
+  will-change: transform;
+  animation: decor-float var(--dur) ease-in-out var(--delay) infinite alternate;
+  /* sombra sólida (profundidade de adesivo) + brilho suave ao redor */
+  filter: drop-shadow(0 5px 0 color-mix(in srgb, var(--ink) 22%, transparent))
+    drop-shadow(0 0 8px color-mix(in srgb, var(--paper) 55%, transparent));
+}
+
+.bg-decor .decor-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform-origin: 50% 50%;
+  animation: decor-bob var(--bob) ease-in-out var(--delay) infinite;
+}
+
+/* Brilho que pisca de leve */
+.bg-decor .decor-shine {
+  animation: decor-glint 4.5s ease-in-out var(--delay) infinite;
+}
+
+/* Deriva lenta pelo cenário */
+@keyframes decor-float {
+  from {
+    transform: translate3d(0, 0, 0) rotate(var(--rot0));
+  }
+  to {
+    transform: translate3d(var(--dx), var(--dy), 0) rotate(var(--rot1));
+  }
+}
+
+/* Balanço e "respiração" do próprio ícone */
+@keyframes decor-bob {
+  0%,
+  100% {
+    transform: rotate(-3deg) scale(1);
+  }
+  50% {
+    transform: rotate(3deg) scale(1.05);
+  }
+}
+
+@keyframes decor-glint {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .bg-decor {
+    --k: 0.66;
+    opacity: 0.85;
+  }
+}
