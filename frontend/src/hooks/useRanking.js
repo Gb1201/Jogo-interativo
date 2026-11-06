@@ -1,6 +1,19 @@
 import { useCallback, useEffect, useState } from 'react'
 import { fetchRanking } from '../services/rankingService'
 
+// Compara dois placares para não re-renderizar (nem reiniciar animações) quando nada mudou.
+function sameRows(a, b) {
+  if (a.length !== b.length) return false
+  return a.every(
+    (row, i) =>
+      row.id === b[i].id &&
+      row.position === b[i].position &&
+      row.score === b[i].score &&
+      row.total_time_ms === b[i].total_time_ms &&
+      row.name === b[i].name,
+  )
+}
+
 // Carrega o ranking e atualiza sozinho a cada intervalMs (e ao voltar para a aba).
 export function useRanking(intervalMs) {
   const [rows, setRows] = useState([])
@@ -13,7 +26,7 @@ export function useRanking(intervalMs) {
     setRefreshing(true)
     try {
       const data = await fetchRanking()
-      setRows(data)
+      setRows((prev) => (sameRows(prev, data) ? prev : data))
       setError(null)
       setUpdatedAt(new Date())
     } catch (err) {

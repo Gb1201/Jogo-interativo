@@ -48,6 +48,8 @@ export default function QuestionStage({
 
   const correctOption = question.options.find((o) => o.is_correct)
   const explanation = question.explanation?.trim() || null
+  // A resposta correta + explicação só aparecem quando o jogador erra (ou o tempo acaba).
+  const showExplain = Boolean(feedback) && !feedback.isCorrect
 
   const handleExpire = useCallback(() => {
     if (lockedRef.current) return
@@ -98,27 +100,28 @@ export default function QuestionStage({
     onContinue()
   }, [onContinue])
 
-  // Sem explicação: avança sozinho depois do feedback (o botão "Continuar" adianta).
-  // Com explicação: espera o jogador terminar de ler e clicar em "Continuar".
+  // Acertou, ou errou sem explicação cadastrada: avança sozinho depois do feedback
+  // (o botão "Continuar" adianta).
+  // Errou e há explicação: espera o jogador terminar de ler e clicar em "Continuar".
   const continueRef = useRef(handleContinue)
   useEffect(() => {
     continueRef.current = handleContinue
   }, [handleContinue])
   useEffect(() => {
-    if (!feedback || explanation) return undefined
+    if (!feedback || (showExplain && explanation)) return undefined
     const id = setTimeout(() => continueRef.current(), GAME_CONFIG.feedbackDelayMs)
     return () => clearTimeout(id)
-  }, [feedback, explanation])
+  }, [feedback, explanation, showExplain])
 
   // Garante que o painel da resposta apareça na tela (importante no celular)
   useEffect(() => {
-    if (!feedback) return undefined
+    if (!showExplain) return undefined
     const id = setTimeout(
       () => panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }),
       350,
     )
     return () => clearTimeout(id)
-  }, [feedback])
+  }, [showExplain])
 
   const stateOf = (option) => {
     if (!feedback) return removedIds.includes(option.id) ? 'removed' : 'idle'
@@ -185,7 +188,7 @@ export default function QuestionStage({
       )}
 
       <AnimatePresence>
-        {feedback && correctOption && (
+        {showExplain && correctOption && (
           <motion.div
             key="explain"
             ref={panelRef}

@@ -594,100 +594,6 @@
 }
 
 /* =====================================================================
-   PÓDIO
-   ===================================================================== */
-.podium {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 10px;
-  margin: 10px 0 24px;
-}
-.podium-card {
-  position: relative;
-  flex: 1;
-  max-width: 220px;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 4px;
-  padding: 14px 8px 16px;
-  text-align: center;
-  border-radius: var(--radius-md) var(--radius-md) 8px 8px;
-  border: 3px solid var(--ink);
-  box-shadow: 0 6px 0 var(--ink);
-  font-family: var(--font-display);
-  color: var(--ink);
-}
-.podium-card--1 {
-  min-height: 250px;
-  background: var(--color-pure-sun);
-}
-.podium-card--2 {
-  min-height: 205px;
-  background: var(--color-autumn-lavender);
-}
-.podium-card--3 {
-  min-height: 175px;
-  background: var(--color-peony-bundle);
-}
-.podium-card.is-empty {
-  opacity: 0.6;
-}
-.podium-card.is-me {
-  outline: 4px dashed var(--color-tropical-rain);
-  outline-offset: 4px;
-}
-.podium-icon {
-  display: grid;
-  place-items: center;
-  margin-bottom: auto;
-}
-.podium-card--1 .podium-icon {
-  color: var(--ink);
-}
-.podium-place {
-  font-size: 1.9rem;
-  font-weight: 700;
-  line-height: 1;
-}
-.podium-name {
-  max-width: 100%;
-  font-size: 1.05rem;
-  font-weight: 700;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.podium-score {
-  padding: 2px 12px;
-  border-radius: 999px;
-  background: var(--paper);
-  border: 3px solid var(--ink);
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-.podium-time {
-  font-size: 0.85rem;
-  font-weight: 600;
-  opacity: 0.8;
-}
-.podium-me {
-  position: absolute;
-  top: -14px;
-  right: -6px;
-  padding: 2px 10px;
-  border-radius: 999px;
-  background: var(--color-tropical-rain);
-  color: var(--paper);
-  border: 3px solid var(--ink);
-  font-size: 0.8rem;
-  transform: rotate(6deg);
-}
-
-/* =====================================================================
    LOADER E ERRO
    ===================================================================== */
 .loader {
@@ -774,27 +680,5 @@
   .answer {
     font-size: 1.05rem;
     min-height: 66px;
-  }
-  .podium {
-    gap: 6px;
-  }
-  .podium-card {
-    padding: 12px 4px 14px;
-  }
-  .podium-name {
-    font-size: 0.9rem;
-  }
-  .podium-score {
-    font-size: 1.05rem;
-    padding: 2px 8px;
-  }
-  .podium-card--1 {
-    min-height: 220px;
-  }
-  .podium-card--2 {
-    min-height: 180px;
-  }
-  .podium-card--3 {
-    min-height: 155px;
   }
 }
