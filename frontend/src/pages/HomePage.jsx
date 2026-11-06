@@ -11,6 +11,15 @@ import GameButton from '../components/GameButton'
 
 const TITLE = 'CONTRACEP'
 
+const AUTHORS = [
+  'Yasmin Palmeira',
+  'Anna Clara Barros',
+  'Gabriela Moura',
+  'Luís Henrique',
+  'Maicon Cagnin',
+  'Sofia Guedes',
+]
+
 function friendlyError(error) {
   if (error?.code === 'DUPLICATE_NAME') {
     return 'Opa! Já tem alguém jogando com esse nome. Que tal adicionar um sobrenome ou apelido?'
@@ -244,6 +253,22 @@ export default function HomePage({ onStart, onFinished, onRanking, onRules }) {
           Ver ranking
         </GameButton>
       </motion.div>
+
+      <motion.footer
+        className="credits"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.5 }}
+      >
+        <p className="credits-label">Desenvolvido por</p>
+        <ul className="credits-names">
+          {AUTHORS.map((author) => (
+            <li key={author}>{author}</li>
+          ))}
+        </ul>
+        <p className="credits-class">Turma 3003 CN</p>
+        <p className="credits-school">Instituto de Educação Professora Ismar Gomes de Azevedo</p>
+      </motion.footer>
     </div>
   )
 }
